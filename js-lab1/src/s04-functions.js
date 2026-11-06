@@ -5,7 +5,12 @@
 //     meta: "4 credits · Computer Science", isFull: false }
 // Write it as an ARROW function with an implicit return of an object.
 export const toCardView = (course) => {
-  throw new Error("TODO");
+  return ({
+    id: course.id,
+    heading: `${course.code} · ${course.title}`,
+    meta: `${course.credits} credits · ${course.department}`,
+    isFull: course.seatsLeft === 0,
+  });
 };
 
 // One button per course. Each button's onClick must be a FUNCTION that,
@@ -16,6 +21,6 @@ export const toCardView = (course) => {
 export function buildButtons(courses, onAdd) {
   return courses.map((course) => ({
     label: `Add ${course.code}`,
-    onClick: onAdd(course.id),
+    onClick: () => onAdd(course.id),
   }));
 }
