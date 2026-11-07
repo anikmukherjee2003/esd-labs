@@ -17,35 +17,57 @@ export const initialState = Object.freeze({
 
 export function transition(state, event) {
   switch (event.type) {
-    case "LOAD_START":
-      // status becomes "loading" and error becomes null; everything else stays
-      throw new Error("TODO: LOAD_START");
-    case "LOAD_OK":
-      // status "ready", courses from event.courses; on the FIRST success also
-      // fill departments (unique, sorted) from those courses
-      throw new Error("TODO: LOAD_OK");
-    case "LOAD_FAIL":
-      // status "error", error from event.message (keep the old courses)
-      throw new Error("TODO: LOAD_FAIL");
-    case "SET_DEPARTMENT":
-      // department from event.department — the SAME state if it didn't change
-      throw new Error("TODO: SET_DEPARTMENT");
-    case "SET_QUERY":
-      // query from event.query — the SAME state if it didn't change
-      throw new Error("TODO: SET_QUERY");
-    case "ADD":
-      // add { id, code, title, credits } of event.course to the planner —
-      // the SAME state if it's already there.
-      // Stretch: also refuse a full course, or one that would go over 24 credits.
-      throw new Error("TODO: ADD");
-    case "REMOVE":
-      // remove the course with id event.id, AND its grade if it has one —
-      // the SAME state if it isn't in the planner
-      throw new Error("TODO: REMOVE");
-    case "SET_GRADE":
-      // grades[event.id] = event.grade (a computed key!); an empty grade ""
-      // removes that course's entry — the SAME state if nothing changes
-      throw new Error("TODO: SET_GRADE");
+    case "LOAD_START": {
+      if (state.status === "loading" && state.error === null) return state;
+      return { ...state, status: "loading", error: null };
+    }
+    case "LOAD_OK": {
+      const courses = event.courses ?? [];
+      const nextDepartments = state.departments.length === 0
+        ? [...new Set(courses.map((course) => course.department))].sort()
+        : state.departments;
+      if (state.status === "ready" && state.courses === courses && state.departments === nextDepartments) return state;
+      return { ...state, status: "ready", courses, error: null, departments: nextDepartments };
+    }
+    case "LOAD_FAIL": {
+      if (state.status === "error" && state.error === event.message) return state;
+      return { ...state, status: "error", error: event.message };
+    }
+    case "SET_DEPARTMENT": {
+      if (state.department === event.department) return state;
+      return { ...state, department: event.department };
+    }
+    case "SET_QUERY": {
+      if (state.query === event.query) return state;
+      return { ...state, query: event.query };
+    }
+    case "ADD": {
+      const course = event.course;
+      if (!course) return state;
+      if (state.planner.some((planned) => planned.id === course.id)) return state;
+      if (course.seatsLeft === 0) return state;
+      const totalCredits = state.planner.reduce((sum, planned) => sum + planned.credits, 0) + course.credits;
+      if (totalCredits > 24) return state;
+      return { ...state, planner: [...state.planner, { id: course.id, code: course.code, title: course.title, credits: course.credits }] };
+    }
+    case "REMOVE": {
+      const nextPlanner = state.planner.filter((course) => course.id !== event.id);
+      if (nextPlanner.length === state.planner.length) return state;
+      const nextGrades = { ...state.grades };
+      delete nextGrades[event.id];
+      return { ...state, planner: nextPlanner, grades: nextGrades };
+    }
+    case "SET_GRADE": {
+      const currentGrade = state.grades[event.id];
+      if (currentGrade === event.grade) return state;
+      const nextGrades = { ...state.grades };
+      if (event.grade === "") {
+        delete nextGrades[event.id];
+      } else {
+        nextGrades[event.id] = event.grade;
+      }
+      return { ...state, grades: nextGrades };
+    }
     default:
       return state; // an event we don't know changes nothing
   }

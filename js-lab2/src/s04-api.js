@@ -7,7 +7,15 @@
 //       → a URL whose department is exactly "Data Science & AI" (the & must be encoded!)
 // Leave out any filter that is missing or blank. Use URLSearchParams.
 export function buildCoursesUrl({ department = "", q = "" } = {}) {
-  throw new Error("TODO");
+  const params = new URLSearchParams();
+  const cleanDepartment = department?.trim();
+  const cleanQuery = q?.trim();
+
+  if (cleanDepartment) params.set("department", cleanDepartment);
+  if (cleanQuery) params.set("q", cleanQuery);
+
+  const query = params.toString();
+  return query ? `/api/courses?${query}` : "/api/courses";
 }
 
 // GET a URL and return the parsed JSON body.
@@ -16,10 +24,12 @@ export function buildCoursesUrl({ department = "", q = "" } = {}) {
 //   false, throw new Error(`HTTP ${res.status}`).
 // - If fetch itself rejects (no network), let that error propagate.
 export async function getJSON(url, fetchFn = fetch) {
-  throw new Error("TODO");
+  const res = await fetchFn(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 // The courses matching some filters: build the URL, then getJSON it.
 export function fetchCourses(filters, fetchFn = fetch) {
-  throw new Error("TODO");
+  return getJSON(buildCoursesUrl(filters), fetchFn);
 }
