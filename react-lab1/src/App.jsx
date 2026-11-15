@@ -1,12 +1,13 @@
 // The whole app: App → Header, Matrix → Cell, Stats.
 // App owns the numbers. Matrix and Stats only receive them as props.
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Header from "./Header.jsx";
 import Matrix from "./Matrix.jsx";
-import Stats from "./Stats.jsx";
-import { START, incrementAt, decrementAt, zeros } from "./matrix.js";
+import { START } from "./matrix.js";
 
 export default function App() {
+  const [matrix] = useState(START);
+
   // Section 07: hold the matrix in state, starting from START, and render
   //             <Matrix matrix={…} /> under the header.
   // Section 08: write increment(row, col): it calls the setter with incrementAt.
@@ -16,6 +17,7 @@ export default function App() {
   return (
     <main className="app">
       <Header />
+      <Matrix matrix={matrix} />
     </main>
   );
 }
