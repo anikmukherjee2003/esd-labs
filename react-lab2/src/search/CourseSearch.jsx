@@ -8,11 +8,13 @@
 // This component owns the query (nobody else needs it) and nothing else.
 import { useState } from "react";
 import { useCourseSearch } from "./useCourseSearch.js";
+import { useDebounced } from "./useDebounced.js";
 import { SearchResults } from "./SearchResults.jsx";
 
 export function CourseSearch() {
   const [query, setQuery] = useState("");
-  const { results, status } = useCourseSearch(query);
+  const debouncedQuery = useDebounced(query, 250);
+  const { results, status } = useCourseSearch(debouncedQuery);
 
   return (
     <section className="search">
