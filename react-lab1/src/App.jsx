@@ -3,10 +3,14 @@
 import { useState } from "react";
 import Header from "./Header.jsx";
 import Matrix from "./Matrix.jsx";
-import { START } from "./matrix.js";
+import { START, incrementAt } from "./matrix.js";
 
 export default function App() {
-  const [matrix] = useState(START);
+  const [matrix, setMatrix] = useState(START);
+
+  function increment(row, col) {
+    setMatrix((current) => incrementAt(current, row, col));
+  }
 
   // Section 07: hold the matrix in state, starting from START, and render
   //             <Matrix matrix={…} /> under the header.
@@ -17,7 +21,7 @@ export default function App() {
   return (
     <main className="app">
       <Header />
-      <Matrix matrix={matrix} />
+      <Matrix matrix={matrix} onIncrement={increment} />
     </main>
   );
 }
