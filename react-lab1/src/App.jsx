@@ -1,6 +1,6 @@
 // The whole app: App → Header, Matrix → Cell, Stats.
 // App owns the numbers. Matrix and Stats only receive them as props.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./Header.jsx";
 import Matrix from "./Matrix.jsx";
 import Stats from "./Stats.jsx";
@@ -8,6 +8,28 @@ import { START, incrementAt } from "./matrix.js";
 
 export default function App() {
   const [matrix, setMatrix] = useState(START);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadMatrix() {
+      try {
+        const response = await fetch("/matrix.json");
+        if (!response.ok) {
+          throw new Error(`Failed to load /matrix.json: ${response.status}`);
+        }
+        const loadedMatrix = await response.json();
+        if (active) setMatrix(loadedMatrix);
+      } catch (error) {
+        console.error("Failed to load /matrix.json", error);
+      }
+    }
+
+    loadMatrix();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function increment(row, col) {
     setMatrix((current) => incrementAt(current, row, col));
