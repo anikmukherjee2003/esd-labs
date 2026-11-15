@@ -9,5 +9,13 @@
 //   row 0, col 1, value 5   →   aria-label "Row 1, column 2: 5"
 // Clicking it calls onClick. Pass the function — don't call it.
 export default function Cell({ row, col, value, onClick }) {
-  throw new Error("TODO");
+  return (
+    <button
+      className="cell"
+      aria-label={`Row ${row + 1}, column ${col + 1}: ${value}`}
+      onClick={onClick}
+    >
+      {value}
+    </button>
+  );
 }
